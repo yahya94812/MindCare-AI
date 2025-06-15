@@ -13,4 +13,5 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  base: '/yahya94812.github.io/', // Replace with your repo name
 })
