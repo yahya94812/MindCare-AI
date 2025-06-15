@@ -4,12 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
 import { useTabs } from '@/hooks/useTabs';
+import AuthPage from '@/components/AuthPage';
 import JournalEntry from '@/components/JournalEntry';
 import Dashboard from '@/components/Dashboard';
-import { BookOpen, BarChart3, User, Brain, Edit3 } from 'lucide-react';
+import { BookOpen, BarChart3, User, Brain, Edit3, LogOut, Trash2 } from 'lucide-react';
 
 function App() {
-  const { user, loading, createUser, logout } = useAuth();
+  const { user, loading, login, register, logout, clearAllData, isAuthenticated } = useAuth();
   const { activeTab, setTab, isActive } = useTabs('journal');
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState('');
@@ -21,9 +22,18 @@ function App() {
 
   const handleSaveName = () => {
     if (newName.trim()) {
-      createUser(newName.trim());
+      // Update user name (you might want to implement this in useAuth)
+      const updatedUser = { ...user, name: newName.trim() };
+      localStorage.setItem('mindcare_user', JSON.stringify(updatedUser));
+      window.location.reload(); // Simple way to refresh the user data
     }
     setIsEditingName(false);
+  };
+
+  const handleClearData = () => {
+    if (confirm('Are you sure you want to clear all data? This action cannot be undone.')) {
+      clearAllData();
+    }
   };
 
   if (loading) {
@@ -35,6 +45,10 @@ function App() {
         </div>
       </div>
     );
+  }
+
+  if (!isAuthenticated) {
+    return <AuthPage onLogin={login} onRegister={register} />;
   }
 
   return (
@@ -85,19 +99,31 @@ function App() {
                       </Button>
                     </div>
                   )}
-                  <p className="text-xs text-gray-600">Local User</p>
+                  <p className="text-xs text-gray-600">{user.email}</p>
                 </div>
               </div>
               
-              <Button
-                onClick={logout}
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2"
-              >
-                <User className="h-4 w-4" />
-                <span className="hidden sm:inline">Reset</span>
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={logout}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden sm:inline">Sign Out</span>
+                </Button>
+                
+                <Button
+                  onClick={handleClearData}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2 text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  <span className="hidden sm:inline">Clear Data</span>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
